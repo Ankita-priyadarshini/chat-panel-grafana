@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { PanelProps } from '@grafana/data';
 import './style.css';
 
-interface Props {} // 🔥 CHANGED: Now a regular React component
+interface Props extends PanelProps {}
 
 interface Message {
   id: string;
@@ -10,14 +11,13 @@ interface Message {
   timestamp: Date;
 }
 
-const ChatPanel: React.FC<Props> = () => {
+export const ChatPanel: React.FC<Props> = ({ width, height }) => {
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       type: 'assistant',
-      content:
-        "Hello! I'm your GenAI assistant. Ask me about your logs, dashboards, or any questions you have about your data.",
+      content: "Hello! I'm your GenAI assistant. Ask me about your logs, dashboards, or any questions you have about your data.",
       timestamp: new Date(),
     },
   ]);
@@ -34,7 +34,9 @@ const ChatPanel: React.FC<Props> = () => {
   }, [messages]);
 
   const handleSend = async () => {
-    if (!query.trim()) return;
+    if (!query.trim()) { 
+        return; 
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -87,20 +89,15 @@ const ChatPanel: React.FC<Props> = () => {
     }
   };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
+  const formatTime = (date: Date) =>
+    date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
     });
-  };
 
   return (
-    <div
-      className="chat-panel"
-      // 🔥 CHANGED: Removed width and height props, use 100% or static
-      style={{ width: '100%', height: '100%' }}
-    >
+    <div className="chat-panel" style={{ width: width - 16, height: height - 16 }}>
       {/* Header */}
       <div className="chat-header">
         <div className="header-left">
@@ -110,28 +107,22 @@ const ChatPanel: React.FC<Props> = () => {
         <div className="header-status">Connected</div>
       </div>
 
-      {/* Messages Container */}
+      {/* Messages */}
       <div className="chat-messages">
         {messages.map((message) => (
           <div
             key={message.id}
             className={`message-container ${
-              message.type === 'user'
-                ? 'message-user-container'
-                : 'message-assistant-container'
+              message.type === 'user' ? 'message-user-container' : 'message-assistant-container'
             }`}
           >
             <div
               className={`message-bubble ${
-                message.type === 'user'
-                  ? 'message-user'
-                  : 'message-assistant'
+                message.type === 'user' ? 'message-user' : 'message-assistant'
               }`}
             >
               <div className="message-content">{message.content}</div>
-              <div className="message-time">
-                {formatTime(message.timestamp)}
-              </div>
+              <div className="message-time">{formatTime(message.timestamp)}</div>
             </div>
           </div>
         ))}
@@ -150,7 +141,7 @@ const ChatPanel: React.FC<Props> = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
+      {/* Input */}
       <div className="chat-input-area">
         <div className="input-container">
           <div className="textarea-container">
@@ -170,9 +161,7 @@ const ChatPanel: React.FC<Props> = () => {
             onClick={handleSend}
             disabled={loading || !query.trim()}
             className={`send-button ${
-              loading || !query.trim()
-                ? 'send-button-disabled'
-                : 'send-button-active'
+              loading || !query.trim() ? 'send-button-disabled' : 'send-button-active'
             }`}
           >
             <svg
