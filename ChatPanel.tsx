@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { PanelProps } from '@grafana/data';
 import './style.css';
 
-interface Props extends PanelProps {}
+interface Props {} // 🔥 CHANGED: Now a regular React component
 
 interface Message {
   id: string;
@@ -11,15 +10,16 @@ interface Message {
   timestamp: Date;
 }
 
-export const ChatPanel: React.FC<Props> = ({ width, height }) => {
+const ChatPanel: React.FC<Props> = () => {
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       type: 'assistant',
-      content: 'Hello! I\'m your GenAI assistant. Ask me about your logs, dashboards, or any questions you have about your data.',
-      timestamp: new Date()
-    }
+      content:
+        "Hello! I'm your GenAI assistant. Ask me about your logs, dashboards, or any questions you have about your data.",
+      timestamp: new Date(),
+    },
   ]);
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -40,10 +40,10 @@ export const ChatPanel: React.FC<Props> = ({ width, height }) => {
       id: Date.now().toString(),
       type: 'user',
       content: query.trim(),
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setQuery('');
     setLoading(true);
 
@@ -53,25 +53,28 @@ export const ChatPanel: React.FC<Props> = ({ width, height }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: userMessage.content }),
       });
-      
+
       const data = await res.json();
-      
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
-        content: data.answer || 'I received your message, but I\'m currently in demo mode. In a real implementation, I would analyze your logs and dashboards to provide helpful insights.',
-        timestamp: new Date()
+        content:
+          data.answer ||
+          "I received your message, but I'm currently in demo mode. In a real implementation, I would analyze your logs and dashboards to provide helpful insights.",
+        timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
-        content: 'Sorry, I encountered an error while processing your request. Please check your connection and try again.',
-        timestamp: new Date()
+        content:
+          'Sorry, I encountered an error while processing your request. Please check your connection and try again.',
+        timestamp: new Date(),
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setLoading(false);
     }
@@ -85,17 +88,18 @@ export const ChatPanel: React.FC<Props> = ({ width, height }) => {
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
       minute: '2-digit',
-      hour12: false 
+      hour12: false,
     });
   };
 
   return (
-    <div 
+    <div
       className="chat-panel"
-      style={{ width: width - 16, height: height - 16 }}
+      // 🔥 CHANGED: Removed width and height props, use 100% or static
+      style={{ width: '100%', height: '100%' }}
     >
       {/* Header */}
       <div className="chat-header">
@@ -103,9 +107,7 @@ export const ChatPanel: React.FC<Props> = ({ width, height }) => {
           <div className="status-indicator"></div>
           <h2 className="header-title">GenAI Assistant</h2>
         </div>
-        <div className="header-status">
-          Connected
-        </div>
+        <div className="header-status">Connected</div>
       </div>
 
       {/* Messages Container */}
@@ -113,19 +115,27 @@ export const ChatPanel: React.FC<Props> = ({ width, height }) => {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`message-container ${message.type === 'user' ? 'message-user-container' : 'message-assistant-container'}`}
+            className={`message-container ${
+              message.type === 'user'
+                ? 'message-user-container'
+                : 'message-assistant-container'
+            }`}
           >
-            <div className={`message-bubble ${message.type === 'user' ? 'message-user' : 'message-assistant'}`}>
-              <div className="message-content">
-                {message.content}
-              </div>
+            <div
+              className={`message-bubble ${
+                message.type === 'user'
+                  ? 'message-user'
+                  : 'message-assistant'
+              }`}
+            >
+              <div className="message-content">{message.content}</div>
               <div className="message-time">
                 {formatTime(message.timestamp)}
               </div>
             </div>
           </div>
         ))}
-        
+
         {loading && (
           <div className="message-container message-assistant-container">
             <div className="message-bubble message-assistant loading-message">
@@ -154,14 +164,16 @@ export const ChatPanel: React.FC<Props> = ({ width, height }) => {
               className="chat-textarea"
               disabled={loading}
             />
-            <div className="input-hint">
-              Enter to send
-            </div>
+            <div className="input-hint">Enter to send</div>
           </div>
           <button
             onClick={handleSend}
             disabled={loading || !query.trim()}
-            className={`send-button ${loading || !query.trim() ? 'send-button-disabled' : 'send-button-active'}`}
+            className={`send-button ${
+              loading || !query.trim()
+                ? 'send-button-disabled'
+                : 'send-button-active'
+            }`}
           >
             <svg
               className="send-icon"
@@ -178,14 +190,14 @@ export const ChatPanel: React.FC<Props> = ({ width, height }) => {
             </svg>
           </button>
         </div>
-        
+
         {/* Quick Actions */}
         <div className="quick-actions">
           {[
-            { text: "Show recent errors", emoji: "🚨" },
-            { text: "Analyze performance", emoji: "📊" },
-            { text: "Dashboard summary", emoji: "📋" },
-            { text: "Query help", emoji: "❓" }
+            { text: 'Show recent errors', emoji: '🚨' },
+            { text: 'Analyze performance', emoji: '📊' },
+            { text: 'Dashboard summary', emoji: '📋' },
+            { text: 'Query help', emoji: '❓' },
           ].map((suggestion) => (
             <button
               key={suggestion.text}
